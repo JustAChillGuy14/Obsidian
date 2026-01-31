@@ -45,3 +45,5 @@ objects/
 
 # final executable
 main
+
+.vscode/
