@@ -31,7 +31,7 @@ cd Obsidian
 
 ``` sh
 make
-./main --help # (Note: `--help` is not implemented yet.)
+./main --help
 ```
 
 If you don't have make:
