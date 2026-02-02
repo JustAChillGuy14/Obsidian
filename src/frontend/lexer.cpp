@@ -1,8 +1,14 @@
 #include "frontend/lexer.hpp"
+#include <unordered_map>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
+
+static const std::unordered_map<std::string_view, lexer::TokenType> keywords = {
+    {"return", lexer::TokenType::Return},
+};
+
 
 const char *lexer::tokentype_str(lexer::TokenType kind)
 {
@@ -22,6 +28,8 @@ const char *lexer::tokentype_str(lexer::TokenType kind)
         return "`Integer`";
     case TokenType::Identifier:
         return "`Identifier`";
+    case TokenType::Return:
+        return "`Return`";
     case TokenType::SemiColon:
         return "`SemiColon`";
     case TokenType::_EOF:
@@ -94,7 +102,16 @@ std::vector<lexer::Token> lexer::Lexer::tokenize(std::string_view file_name,bool
             }
 
             uint32_t end = idx;
-            ret.push_back(token(TokenType::Identifier, std::string_view(src.data() + start, end - start), row, col));
+
+            std::string_view ident(src.data() + start, end - start);
+            if (auto it = keywords.find(ident); it != keywords.end())
+            {
+                ret.push_back(token((it->second), std::string_view{}, row, col));
+            }
+            else
+            {
+                ret.push_back(token(TokenType::Identifier, ident, row, col));
+            }
         }
         else if (isdigit(peek()))
         {
@@ -108,6 +125,11 @@ std::vector<lexer::Token> lexer::Lexer::tokenize(std::string_view file_name,bool
 
             uint32_t end = idx;
             ret.push_back(token(TokenType::Integer, std::string_view(src.data() + start, end - start), row, col));
+        }
+        else if (peek() == ';')
+        {
+            consume();
+            ret.push_back(token(TokenType::SemiColon, std::string_view{}, row, col++)); // Had to do what i had to go i guess...
         }
         else if (peek() == '+')
         {
@@ -156,6 +178,7 @@ std::vector<lexer::Token> lexer::Lexer::tokenize(std::string_view file_name,bool
         }
     }
 
+    ret.push_back(token(TokenType::_EOF, std::string_view{}, row, col)); // row,col are basically unused lol
     return ret;
 }
 

@@ -23,6 +23,11 @@ namespace lexer
         Identifier,
 
         /*
+        Keywords
+        */
+        Return,
+
+        /*
         Line/File Enders
         */
         SemiColon,
